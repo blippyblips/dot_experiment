@@ -6,9 +6,12 @@
 #include <memory>
 #include <new>
 #include <numeric>
+#include <vector>
+
+#ifdef __cpp_aligned_new
 #include <ranges>
 #include <span>
-#include <vector>
+#endif
 
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -55,6 +58,7 @@ void matrix_multiply_unrolled(const float* A, const float* B, float* C,
   }
 }
 
+#ifdef __cpp_aligned_new
 void matrix_multiply_blocked_v2(std::span<const float> A,
                                 std::span<const float> B, std::span<float> C,
                                 size_t n, size_t m, size_t p) {
@@ -76,14 +80,10 @@ void matrix_multiply_blocked_v2(std::span<const float> A,
     }
   }
 }
+#endif
 
 void matrix_multiply_simd(const float* lhs, const float* rhs,
                           float* result, size_t rows_of_a, size_t shared_dimension, size_t cols_of_b) {
-  // Assert that input matrices have the expected sizes
-  assert(lhs.size() == rows_of_a * shared_dimension);
-  assert(rhs.size() == shared_dimension * cols_of_b);
-  assert(result.size() == rows_of_a * cols_of_b);
-
   for (size_t row = 0; row < rows_of_a; ++row) {
     for (size_t col = 0; col < cols_of_b; ++col) {
       __m256 simd_sum = _mm256_setzero_ps();
@@ -227,6 +227,7 @@ void benchmark_simd(picobench::state& s) {
 }
 PICOBENCH(benchmark_simd);
 
+#ifdef __cpp_aligned_new
 void benchmark_blocked(picobench::state& s) {
   size_t n = (int)std::sqrt(s.iterations()), m = (int)std::sqrt(s.iterations()),
          p = (int)std::sqrt(s.iterations());
@@ -247,6 +248,7 @@ void benchmark_blocked_v3(picobench::state& s) {
   }
 }
 PICOBENCH(benchmark_blocked_v3);
+#endif
 
 #if 0
 void benchmark_opencl(picobench::state& s) {
@@ -260,6 +262,7 @@ void benchmark_opencl(picobench::state& s) {
 PICOBENCH(benchmark_opencl);
 #endif
 
+#ifdef __cpp_aligned_new
 void benchmark_matrix_multiply_simd_blocked(picobench::state& s) {
   size_t n = (int)std::sqrt(s.iterations()), m = (int)std::sqrt(s.iterations()),
          p = (int)std::sqrt(s.iterations());
@@ -269,3 +272,4 @@ void benchmark_matrix_multiply_simd_blocked(picobench::state& s) {
   }
 }
 PICOBENCH(benchmark_matrix_multiply_simd_blocked);
+#endif
