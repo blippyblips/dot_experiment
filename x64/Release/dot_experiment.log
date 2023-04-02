@@ -1,6 +1,0 @@
-﻿  benchmarks.cpp
-  Generating code
-  Previous IPDB was built with incompatible compiler, fall back to full compilation.
-  All 1182 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Finished generating code
-  dot_experiment.vcxproj -> C:\dev_probox\net\x64\Release\dot_experiment.exe
